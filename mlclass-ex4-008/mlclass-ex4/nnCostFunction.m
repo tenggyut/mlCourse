@@ -24,11 +24,38 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 % Setup some useful variables
 m = size(X, 1);
-         
+%X = [ones(m,1) X];
+
 % You need to return the following variables correctly 
-J = 0;
-Theta1_grad = zeros(size(Theta1));
-Theta2_grad = zeros(size(Theta2));
+
+
+
+vecY = zeros(m, num_labels);
+for i=1:size(y)
+    vecY(i,y(i))=1;
+end
+
+theta1_temp = Theta1;
+theta1_temp(1) = 0;
+theta2_temp = Theta2;
+theta2_temp(1) = 0;
+
+a1 = [ones(m,1) X];
+a2 = [ones(m,1) sigmoid(a1 * Theta1')];
+a3 = sigmoid(a2 * Theta2');
+
+error3 = a3 - vecY;
+error2 = ((error3 * Theta2) .* sigmoidGradient(a2))(:,2:end);
+
+
+Theta1_grad = (error2' * a1) / m + (lambda / m) * (theta1_temp);
+
+Theta2_grad = (error3' * a2) / m + (lambda / m) * (theta2_temp);
+
+J = sum(([vecY 1 - vecY] .* [log(a3) log(1 - a3)])(:)) / -m + ...
+	lambda * (sum((theta1_temp .^2)(:)) + sum((theta2_temp .^2)(:))) / (2 * m);
+	
+
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
