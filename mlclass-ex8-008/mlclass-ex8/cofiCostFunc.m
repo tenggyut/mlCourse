@@ -13,7 +13,8 @@ Theta = reshape(params(num_movies*num_features+1:end), ...
 
             
 % You need to return the following values correctly
-J = 0;
+J = (((X * Theta')(R == 1) - Y(R == 1))' * ((X * Theta')(R == 1) - Y(R == 1))) / 2 ...
+	 + lambda * sum(Theta(:) .^2) / 2 + lambda * sum(X(:) .^2) / 2;
 X_grad = zeros(size(X));
 Theta_grad = zeros(size(Theta));
 
@@ -41,9 +42,16 @@ Theta_grad = zeros(size(Theta));
 %
 
 
+for i=1:num_users
+	idx = find(R(:,i) == 1)';
+	Theta_grad(i,:) = (X(idx,:) * Theta(i,:)' - Y(idx,i))' * X(idx,:) + (lambda) *  Theta(i,:);
+    
+end
 
-
-
+for i=1:num_movies
+	idx = find(R(i,:) == 1);
+	X_grad(i,:) = (X(i,:) * Theta(idx,:)' - Y(i,idx)) * Theta(idx,:) + (lambda) *  X(i,:);
+end
 
 
 
